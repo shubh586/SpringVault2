@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  com.appvault.client.VaultEnvironmentPostProcessor

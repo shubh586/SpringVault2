@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Vault — Unified Credential Vault</title>
+    <meta name="description" content="Centralized, secure credential vault for microservices. AES-256-GCM encryption, ABAC policies, real-time audit trail.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Canvas Background -->
+    <canvas id="bgCanvas"></canvas>
+    <div class="noise-overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="mainNav">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">
+                <div class="nav-logo-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        <circle cx="12" cy="16" r="1"/>
+                    </svg>
+                </div>
+                <span>App Vault</span>
+            </a>
+            <div class="nav-links">
+                <a href="#hero" class="nav-link">Home</a>
+                <a href="#stats" class="nav-link">Overview</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#dashboard" class="nav-link">Dashboard</a>
+            </div>
+            <div class="nav-status">
+                <div class="status-pill" id="statusPill">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="connectionStatus">Connecting...</span>
+                </div>
+                <span class="nav-clock" id="currentTime"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                AES-256-GCM Encrypted
+            </div>
+            <h1 class="hero-title">
+                <span class="hero-title-line">Secrets that</span>
+                <span class="hero-title-line hero-title-gradient">stay secret.</span>
+            </h1>
+            <p class="hero-subtitle">
+                A unified credential vault for microservices. One dependency, four lines of YAML — your secrets are managed, encrypted, and audited.
+            </p>
+            <div class="hero-actions">
+                <a href="#dashboard" class="btn-hero-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Open Dashboard
+                </a>
+                <a href="#features" class="btn-hero-secondary">
+                    Learn More
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+            </div>
+            <div class="hero-stats-mini" id="heroMiniStats">
+                <div class="hero-stat-item">
+                    <span class="hero-stat-num" id="heroSecrets">—</span>
+                    <span class="hero-stat-text">Secrets stored</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat-item">
+                    <span class="hero-stat-num" id="heroPolicies">—</span>
+                    <span class="hero-stat-text">Active policies</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat-item">
+                    <span class="hero-stat-num" id="heroUptime">99.9%</span>
+                    <span class="hero-stat-text">Uptime</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="vault-3d">
+                <div class="vault-ring vault-ring-1"></div>
+                <div class="vault-ring vault-ring-2"></div>
+                <div class="vault-ring vault-ring-3"></div>
+                <div class="vault-core">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="url(#lockGrad)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <defs>
+                            <linearGradient id="lockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#22c55e"/>
+                                <stop offset="100%" style="stop-color:#a3e635"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        <circle cx="12" cy="16" r="1"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Overview Section -->
+    <section class="stats-section" id="stats">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">Real-time Overview</span>
+                <h2 class="section-title">System at a Glance</h2>
+                <p class="section-desc">Live metrics from your vault server — updated every 30 seconds</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card stat-card-secrets reveal-up" data-delay="0">
+                    <div class="stat-card-glow"></div>
+                    <div class="stat-icon-wrap">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-number" id="totalSecrets">—</span>
+                        <span class="stat-label">Total Secrets</span>
+                    </div>
+                    <div class="stat-sparkline" id="sparkSecrets"></div>
+                </div>
+                <div class="stat-card stat-card-policies reveal-up" data-delay="100">
+                    <div class="stat-card-glow"></div>
+                    <div class="stat-icon-wrap">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-number" id="totalPolicies">—</span>
+                        <span class="stat-label">Active Policies</span>
+                    </div>
+                    <div class="stat-sparkline" id="sparkPolicies"></div>
+                </div>
+                <div class="stat-card stat-card-access reveal-up" data-delay="200">
+                    <div class="stat-card-glow"></div>
+                    <div class="stat-icon-wrap">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-number" id="accessCount">—</span>
+                        <span class="stat-label">Requests (24h)</span>
+                    </div>
+                    <div class="stat-trend stat-trend-up" id="accessTrend">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        <span id="accessTrendText">—</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-denied reveal-up" data-delay="300">
+                    <div class="stat-card-glow"></div>
+                    <div class="stat-icon-wrap">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-number" id="failedCount">—</span>
+                        <span class="stat-label">Denied (24h)</span>
+                    </div>
+                    <div class="stat-trend stat-trend-down" id="deniedTrend">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                        <span id="deniedTrendText">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extended Stats Row -->
+            <div class="stats-extended">
+                <div class="ext-stat reveal-up" data-delay="100">
+                    <div class="ext-stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div class="ext-stat-info">
+                        <span class="ext-stat-value" id="activeServices">—</span>
+                        <span class="ext-stat-label">Active Services (24h)</span>
+                    </div>
+                </div>
+                <div class="ext-stat reveal-up" data-delay="200">
+                    <div class="ext-stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    <div class="ext-stat-info">
+                        <span class="ext-stat-value" id="totalLogs">—</span>
+                        <span class="ext-stat-label">Total Audit Logs</span>
+                    </div>
+                </div>
+                <div class="ext-stat reveal-up" data-delay="300">
+                    <div class="ext-stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <div class="ext-stat-info">
+                        <span class="ext-stat-value" id="access7d">—</span>
+                        <span class="ext-stat-label">Requests (7 days)</span>
+                    </div>
+                </div>
+                <div class="ext-stat reveal-up" data-delay="400">
+                    <div class="ext-stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </div>
+                    <div class="ext-stat-info">
+                        <span class="ext-stat-value" id="failed7d">—</span>
+                        <span class="ext-stat-label">Denied (7 days)</span>
+                    </div>
+                </div>
+                <div class="ext-stat reveal-up" data-delay="500">
+                    <div class="ext-stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div class="ext-stat-info">
+                        <span class="ext-stat-value" id="serverTime">—</span>
+                        <span class="ext-stat-label">Server Time</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">Why App Vault</span>
+                <h2 class="section-title">Built for security-first teams</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card reveal-up" data-delay="0">
+                    <div class="feature-icon feature-icon-encrypt">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <h3>AES-256-GCM</h3>
+                    <p>Every secret encrypted with a unique IV. Military-grade encryption at rest. Your plaintext never touches disk.</p>
+                </div>
+                <div class="feature-card reveal-up" data-delay="100">
+                    <div class="feature-icon feature-icon-policy">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <h3>ABAC Policies</h3>
+                    <p>Multi-attribute access control — service, environment, region, and path. DENY always wins. Zero-trust by default.</p>
+                </div>
+                <div class="feature-card reveal-up" data-delay="200">
+                    <div class="feature-icon feature-icon-audit">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <h3>Full Audit Trail</h3>
+                    <p>Every access logged asynchronously — who accessed what, when, from where, and whether it was allowed or denied.</p>
+                </div>
+                <div class="feature-card reveal-up" data-delay="300">
+                    <div class="feature-icon feature-icon-code">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </div>
+                    <h3>Zero-Code Integration</h3>
+                    <p>Add one Maven dependency, configure 4 lines of YAML. Secrets inject before Spring even boots. Magic.</p>
+                </div>
+                <div class="feature-card reveal-up" data-delay="400">
+                    <div class="feature-icon feature-icon-rotate">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    </div>
+                    <h3>Secret Rotation</h3>
+                    <p>Rotate secrets without redeploying services. Update in the vault, services pick up the change. Zero downtime.</p>
+                </div>
+                <div class="feature-card reveal-up" data-delay="500">
+                    <div class="feature-icon feature-icon-docker">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg>
+                    </div>
+                    <h3>One-Command Deploy</h3>
+                    <p><code>docker-compose up</code> — that's it. PostgreSQL, vault server, and dashboard. No ceremony, no unsealing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard-section" id="dashboard">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">Control Center</span>
+                <h2 class="section-title">Admin Dashboard</h2>
+                <p class="section-desc">Manage policies, monitor audit trails, and integrate services</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="dash-tabs">
+                <button class="dash-tab active" data-tab="audit" id="tabAudit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Audit Trail
+                </button>
+                <button class="dash-tab" data-tab="policies" id="tabPolicies">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Policies
+                </button>
+                <button class="dash-tab" data-tab="config" id="tabConfig">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    Integration
+                </button>
+            </div>
+
+            <!-- Tab Content: Audit Logs -->
+            <section class="dash-content active" id="auditContent">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                            <h2>Audit Trail</h2>
+                            <span class="panel-badge" id="auditCountBadge">0 events</span>
+                        </div>
+                        <div class="panel-actions">
+                            <select class="filter-select" id="auditFilter">
+                                <option value="">All Actions</option>
+                                <option value="READ">READ</option>
+                                <option value="WRITE">WRITE</option>
+                                <option value="DELETE">DELETE</option>
+                                <option value="ROTATE">ROTATE</option>
+                                <option value="BATCH_READ">BATCH_READ</option>
+                                <option value="AUTH">AUTH</option>
+                            </select>
+                            <button class="btn-icon" id="refreshAudit" title="Refresh">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="auditTable">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Service</th>
+                                    <th>Action</th>
+                                    <th>Resource</th>
+                                    <th>Environment</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditTableBody">
+                                <tr><td colspan="6" class="empty-state">
+                                    <div class="empty-icon">
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    </div>
+                                    Loading audit logs...
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="auditPagination"></div>
+                </div>
+            </section>
+
+            <!-- Tab Content: Policies -->
+            <section class="dash-content" id="policiesContent">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                            <h2>Access Policies (ABAC)</h2>
+                        </div>
+                        <button class="btn-primary" id="addPolicyBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Policy
+                        </button>
+                    </div>
+                    <div class="policies-grid" id="policiesGrid">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                            Loading policies...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Policy Modal -->
+                <div class="modal-overlay" id="policyModal">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                Create Access Policy
+                            </h3>
+                            <button class="modal-close" id="closePolicyModal">&times;</button>
+                        </div>
+                        <form id="policyForm">
+                            <div class="form-group">
+                                <label>Policy Name</label>
+                                <input type="text" id="policyName" placeholder="e.g., order-service-prod-db" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Service Name</label>
+                                    <input type="text" id="policyService" placeholder="e.g., order-service or *" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Effect</label>
+                                    <select id="policyEffect">
+                                        <option value="ALLOW">ALLOW</option>
+                                        <option value="DENY">DENY</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Environment</label>
+                                    <input type="text" id="policyEnv" placeholder="dev, staging, prod, or *" value="*">
+                                </div>
+                                <div class="form-group">
+                                    <label>Region</label>
+                                    <input type="text" id="policyRegion" placeholder="us-east, eu-west, or *" value="*">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Allowed Paths (comma-separated)</label>
+                                <input type="text" id="policyPaths" placeholder="e.g., database/*, api/payment/*" required>
+                            </div>
+                            <button type="submit" class="btn-primary btn-full">Create Policy</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: Integration Guide -->
+            <section class="dash-content" id="configContent">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                            <h2>Integration Guide</h2>
+                        </div>
+                    </div>
+                    <div class="guide-content">
+                        <div class="guide-step">
+                            <div class="step-num">1</div>
+                            <div class="step-body">
+                                <h3>Add the vault-client dependency</h3>
+                                <pre class="code-block"><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.appvault&lt;/groupId&gt;
+    &lt;artifactId&gt;vault-client&lt;/artifactId&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-num">2</div>
+                            <div class="step-body">
+                                <h3>Configure vault connection</h3>
+                                <pre class="code-block"><code>vault:
+  url: http://localhost:8200
+  token: ${VAULT_SERVICE_TOKEN}
+  environment: dev
+  secret-paths:
+    - database/credentials
+    - api/payment
+  fail-on-error: false</code></pre>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-num">3</div>
+                            <div class="step-body">
+                                <h3>Use secrets — Three options</h3>
+                                <div class="code-options">
+                                    <div class="code-option">
+                                        <h4>
+                                            <span class="code-option-badge recommended">Recommended</span>
+                                            @Value injection
+                                        </h4>
+                                        <pre class="code-block"><code>@Value("${database.credentials.password}")
+private String dbPassword;</code></pre>
+                                    </div>
+                                    <div class="code-option">
+                                        <h4>
+                                            <span class="code-option-badge">Custom</span>
+                                            @VaultSecret annotation
+                                        </h4>
+                                        <pre class="code-block"><code>@VaultSecret(path = "database/credentials", key = "password")
+private String dbPassword;</code></pre>
+                                    </div>
+                                    <div class="code-option">
+                                        <h4>
+                                            <span class="code-option-badge">Programmatic</span>
+                                            VaultClient bean
+                                        </h4>
+                                        <pre class="code-block"><code>@Autowired
+private VaultClient vaultClient;
+
+String password = vaultClient.getSecret("database/credentials", "password");</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-num step-done">✓</div>
+                            <div class="step-body">
+                                <h3>That's it! No other code changes needed.</h3>
+                                <p>The vault-client library handles everything: fetching secrets before Spring initializes, caching, background refresh, and token authentication.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-inner">
+                <div class="footer-logo">
+                    <div class="nav-logo-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            <circle cx="12" cy="16" r="1"/>
+                        </svg>
+                    </div>
+                    <span>App Vault</span>
+                </div>
+                <p class="footer-text">Unified Credential Vault for Microservices · MIT License</p>
+                <div class="footer-tech">
+                    <span>Java 17</span>
+                    <span>Spring Boot 3</span>
+                    <span>PostgreSQL</span>
+                    <span>AES-256-GCM</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

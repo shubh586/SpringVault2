@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # ════════════════════════════════════════════
+  #  PostgreSQL Database
+  # ════════════════════════════════════════════
+  postgres:
+    image: postgres:16-alpine
+    container_name: vault-postgres
+    environment:
+      POSTGRES_DB: vault_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"    # 5433 to avoid conflict with local postgres
+    volumes:
+      - vault_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ════════════════════════════════════════════
+  #  App Vault Server
+  # ════════════════════════════════════════════
+  vault-server:
+    build: .
+    container_name: vault-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/vault_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      VAULT_MASTER_KEY: dGhpcy1pcy1hLTMyLWJ5dGUta2V5LWZvci1hZXM=   # base64 of a 32-byte key
+      VAULT_ADMIN_TOKEN: vault-admin-bootstrap-token-change-me
+    ports:
+      - "8200:8200"
+    restart: unless-stopped
+
+  # ════════════════════════════════════════════
+  #  Dashboard (Static Files)
+  # ════════════════════════════════════════════
+  dashboard:
+    image: nginx:alpine
+    container_name: vault-dashboard
+    volumes:
+      - ./vault-dashboard:/usr/share/nginx/html:ro
+    ports:
+      - "3000:80"
+    depends_on:
+      - vault-server
+
+volumes:
+  vault_data:

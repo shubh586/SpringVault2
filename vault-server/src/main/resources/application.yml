@@ -1,0 +1,48 @@
+server:
+  port: 8200
+
+spring:
+  application:
+    name: vault-server
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vault_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+# Vault encryption configuration
+vault:
+  encryption:
+    # AES-256 master key (must decode to exactly 32 bytes)
+    master-key: ${VAULT_MASTER_KEY}
+
+  admin:
+    token: ${VAULT_ADMIN_TOKEN}
+
+  bootstrap:
+    # Keep false by default. Enable only in local dev bootstrap scenarios.
+    create-dev-policy: false
+
+  security:
+    # Comma-separated explicit origins for browser access.
+    allowed-origins: ${VAULT_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:8080,http://127.0.0.1:8080}
+
+logging:
+  level:
+    com.appvault: INFO
+    org.springframework.security: INFO
