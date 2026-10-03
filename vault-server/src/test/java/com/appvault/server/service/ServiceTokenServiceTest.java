@@ -54,7 +54,7 @@ class ServiceTokenServiceTest {
         ServiceToken savedToken = captor.getValue();
         assertThat(savedToken.getTokenHash()).isNotEqualTo(response.getToken());
         assertThat(savedToken.getTokenHash()).hasSize(64); // SHA-256 hex string is 64 characters
-        assertThat(savedToken.isActive()).isTrue();
+        assertThat(savedToken.getActive()).isTrue();
     }
 
     @Test
