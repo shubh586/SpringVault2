@@ -19,26 +19,11 @@ A centralized, secure credential vault that stores encrypted secrets and deliver
 
 ---
 
-## ⚡ Why App Vault? — What Makes It Different
+## 🛡️ Core Capabilities & Architecture
 
-### Comparison with Existing Solutions
+### 1. Attribute-Based Access Control (ABAC) Policy Engine
 
-| Capability | HashiCorp Vault | Spring Cloud Vault | AWS Secrets Manager | **App Vault** |
-|---|---|---|---|---|
-| **ABAC Policy Engine** (service + env + region + path) | ❌ Path-based ACL only | ❌ No policies (client only) | ⚠️ Via IAM tags (external, complex) | ✅ **Built-in multi-attribute ABAC** |
-| **`@VaultSecret` Custom Annotation** | ❌ (Server is Go) | ❌ (`@Value` / `@ConfigurationProperties` only) | ❌ (Programmatic SDK only) | ✅ **Custom annotation with defaults** |
-| **Pre-startup secret injection** | ❌ (Needs Spring Cloud or Vault Agent) | ✅ (via ConfigData API) | ❌ | ✅ **Built-in `EnvironmentPostProcessor`** |
-| **Built-in web dashboard** | ✅ Basic UI (Enterprise adds Namespaces, Sentinel) | ❌ | ✅ (AWS Console, vendor-locked) | ✅ **Free, self-hosted, with audit trail** |
-| **Server + Client in same language** | ❌ Server=Go, Client=Java | ❌ Client only (no server) | ❌ Cloud-managed only | ✅ **Both in Java, single repo** |
-| **One-command setup** | ❌ (Init + Unseal ceremony required) | ❌ (Needs a running Vault server) | ❌ (Needs AWS account + IAM setup) | ✅ **`docker-compose up` — done** |
-| **Audit trail with dashboard** | File/syslog/socket (raw JSON, no UI) | ❌ | CloudTrail (separate service) | ✅ **Real-time web dashboard** |
-| **Self-hosted, no vendor lock-in** | ✅ (BSL 1.1 license since 2023) | Partial (needs HashiCorp Vault) | ❌ (AWS-locked) | ✅ **MIT License** |
-
----
-
-### 🛡️ Key Differentiator #1: ABAC Policy Engine
-
-Most secret vaults use simple **path-based ACL** — *"this token can read `/secret/*`"*. App Vault uses **Attribute-Based Access Control (ABAC)** which evaluates **4 attributes simultaneously**:
+App Vault enforces a multi-dimensional access control model evaluating **4 attributes simultaneously** on every secret request:
 
 ```
 ┌──────────────────────────────────────────────────────────┐
@@ -59,65 +44,43 @@ Most secret vaults use simple **path-based ACL** — *"this token can read `/sec
 │                                                          │
 │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │
 │                                                          │
-│   But same service from staging?                         │
+│   Request from staging?                                  │
 │             environment=staging    ❌ no match            │
 │                                                          │
-│   Result:   ❌ ACCESS DENIED                             │
+│   Result:   ❌ ACCESS DENIED (Environment Isolation)      │
 └──────────────────────────────────────────────────────────┘
 ```
 
-**Real-world scenario this solves:**
-> Your `payment-service` in **production** needs access to Stripe API keys.
-> But the same `payment-service` in **staging** should NEVER see production keys.
-> With path-based ACL, you can't enforce this. With ABAC, one policy handles it:
-> ```json
-> {
->   "serviceName": "payment-service",
->   "environment": "prod",
->   "region": "us-east",
->   "allowedPaths": "api/stripe/*",
->   "effect": "ALLOW"
-> }
-> ```
-> Staging payment-service? **Denied automatically.** Different region? **Denied automatically.**
-
-DENY policies always override ALLOW — giving you a **deny-first security model** similar to AWS IAM.
+* **Multi-Attribute Enforcement**: Evaluates `serviceName`, `environment`, `region`, and `path`.
+* **Path Wildcard Matching**: Supports patterns like `database/*`, `api/stripe/*`, or `*`.
+* **Deny-First Security Model**: Explicit `DENY` policies always override `ALLOW` rules.
+* **Default Deny**: Any request not explicitly permitted by an active policy is rejected.
 
 ---
 
-### 🎯 Key Differentiator #2: `@VaultSecret` Annotation
+### 2. Flexible Spring Boot Integration
 
-Neither HashiCorp Vault, Spring Cloud Vault, nor AWS SDK provide a **field-level annotation** for secret injection. App Vault does:
+App Vault provides three distinct integration mechanisms for consumer services:
 
 ```java
-// ❌ HashiCorp / Spring Cloud Vault — only @Value, no vault-specific annotation
+// Method 1: @Value — injected into Spring Environment prior to context boot
 @Value("${database.credentials.password}")
-private String password;
-// Problem: You can't tell if this comes from vault, env var, or application.yml
+private String dbPassword;
 
-// ✅ App Vault — explicit vault annotation (your code is self-documenting)
-@VaultSecret(path = "database/credentials", key = "password")
-private String password;
-// Clear: this MUST come from the vault. Path and key are explicit.
-// Supports defaultValue if vault is unreachable.
+// Method 2: @VaultSecret — explicit field-level annotation with default fallback
+@VaultSecret(path = "database/credentials", key = "password", defaultValue = "fallback")
+private String dbPassword;
+
+// Method 3: Programmatic VaultClient — dynamic on-demand retrieval with in-memory caching
+@Autowired
+private VaultClient vaultClient;
+String password = vaultClient.getSecret("database/credentials", "password");
 ```
 
-**Why this matters:**
-- **Self-documenting** — Any developer reading the code instantly knows this field comes from the vault
-- **Explicit path + key** — No guessing which property maps to which secret
-- **Default values** — `@VaultSecret(path = "...", key = "...", defaultValue = "fallback")` for graceful degradation
-- **Works after startup** — Unlike `@Value` (resolved once at startup), `@VaultSecret` can work with the live `VaultClient` and cached values
+* **Pre-Startup Secret Bootstrapping**: Uses `EnvironmentPostProcessor` to populate secrets before `application.yml` and datasources initialize.
+* **Self-Documenting Code**: `@VaultSecret` clarifies the exact secret path, key, and fallback value.
+* **High-Performance Caching**: Client library caches decrypted secrets with configurable TTL and background refresh.
 
----
-
-### 🖥️ Key Differentiator #3: Built-in Dashboard
-
-HashiCorp Vault's UI is **Enterprise-only** (paid). Spring Cloud Vault has **no UI at all**. App Vault includes a free, real-time monitoring dashboard:
-
-- **Live audit trail** — See every secret access with service name, action, timestamp, and status
-- **Policy management** — Create, view, and delete ABAC policies from the UI
-- **System stats** — Total secrets, active policies, 24h access count, denied requests
-- **Filter & pagination** — Filter audit logs by action type (READ, WRITE, ROTATE, DELETE)
 
 ---
 
@@ -175,7 +138,7 @@ docker-compose up -d
 ### Option 2: Local Development
 
 ```bash
-# Prerequisites: Java 17+, Maven, PostgreSQL
+# Prerequisites: Java 21+, Maven, PostgreSQL
 
 # 1. Create the database
 psql -U postgres -c "CREATE DATABASE vault_db;"
@@ -375,7 +338,7 @@ App_Vault/
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Java 17, Spring Boot 3.2, Spring Security, Spring Data JPA
+- **Backend**: Java 21, Spring Boot 3.2, Spring Security, Spring Data JPA
 - **Database**: PostgreSQL 16
 - **Encryption**: AES-256-GCM (javax.crypto)
 - **Dashboard**: Vanilla HTML/CSS/JS

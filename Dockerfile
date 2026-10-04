@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 LABEL maintainer="shubh"
 LABEL description="App Vault — Centralized Credential Vault for Microservices"
